@@ -398,13 +398,12 @@
       const qualStartDate = new Date(qualStartDateInput);
 
       const phases = [
-        { name: 'GRN', key: 'grn', weeks: 6, description: 'Goods Receipt Note processing' },
+        { name: 'GRN', key: 'grn', weeks: 0, description: 'Goods Receipt Note processing' },
         { name: 'Manual LT', key: 'manual-lt', weeks: manualLT, description: 'Additional lead time' },
         { name: 'Delivery', key: 'delivery', weeks: 3, description: 'Shipping time' },
         { name: 'PO', key: 'po', weeks: 1, description: 'Purchase order processing' },
         { name: 'Approval', key: 'approval', weeks: 5, description: 'Management approval' },
         { name: 'CAR Prep', key: 'car-prep', weeks: 2, description: 'CAR documentation prep' },
-        { name: 'Qualification', key: 'qualification', weeks: 1, description: 'Qualification period' },
         { name: 'Development', key: 'development', weeks: 4, description: 'Development period' },
         { name: 'TGAT', key: 'tgat', weeks: 2, description: 'TGAT process' },
         { name: 'ERFP', key: 'erfp', weeks: 2, description: 'ERFP process' },
