@@ -421,7 +421,10 @@
         currentDate = startDate;
       }
 
-      const carInitiatedDate = currentDate;
+      // Set CAR Initiated Date to the end date of the CAR Prep phase
+      const carPrepPhase = phasesWithDates.find(phase => phase.key === 'car-prep');
+      const carInitiatedDate = carPrepPhase ? carPrepPhase.endDate : currentDate;
+
       document.getElementById('carDateOutput').textContent = `CAR Initiated Date: ${formatDate(carInitiatedDate)}`;
 
       // Timeline summary
