@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qual Time CAR Date Calculator</title>
+  <title>TIMELINE GENERATOR</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
@@ -31,7 +31,7 @@
       color: var(--gray-600);
       background: var(--bg-light);
       line-height: 1.6;
-      padding: 2rem;
+      padding: 1rem;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -43,32 +43,33 @@
       background: white;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow-md);
-      padding: 2rem;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
       color: #111827;
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .subtitle {
       text-align: center;
       color: var(--gray-400);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      font-size: clamp(0.9rem, 2vw, 1rem);
     }
 
     .input-form {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
     }
 
     .input-group {
@@ -80,6 +81,7 @@
       font-weight: 600;
       margin-bottom: 0.5rem;
       color: var(--gray-600);
+      font-size: 0.95rem;
     }
 
     input[type='date'],
@@ -88,6 +90,7 @@
       border: 1px solid var(--gray-300);
       border-radius: var(--border-radius);
       font-family: inherit;
+      font-size: 0.95rem;
     }
 
     .form-actions {
@@ -107,6 +110,7 @@
       transition: all 0.2s ease;
       min-width: 140px;
       white-space: nowrap;
+      font-size: 0.95rem;
     }
 
     #calculateBtn {
@@ -124,19 +128,19 @@
     }
 
     #printBtn:hover {
-      background-color: #4b5563; /* gray-700 */
+      background-color: #4b5563;
     }
 
     .results {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
     }
 
     .car-date {
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
       font-weight: 700;
       color: #111827;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       padding: 1rem;
       background-color: var(--gray-100);
       border-radius: var(--border-radius);
@@ -145,8 +149,8 @@
     .timeline-summary {
       background-color: var(--gray-100);
       border-radius: var(--border-radius);
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
@@ -154,7 +158,8 @@
 
     .timeline-summary h2 {
       color: #111827;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 1.25rem;
     }
 
     .timeline-summary ul {
@@ -165,59 +170,67 @@
       margin-bottom: 0.75rem;
       padding-left: 1rem;
       border-left: 3px solid var(--blue-500);
+      font-size: 0.95rem;
     }
 
     .timeline-summary strong {
       color: #111827;
     }
 
-    /* Improved Gantt Chart styles */
-
+    /* Gantt Chart styles */
     .gantt-container {
       position: relative;
       width: 100%;
-      max-width: 100%;
       border: 1px solid var(--gray-300);
       border-radius: var(--border-radius);
-      padding: 1rem;
+      padding: 0.75rem;
       overflow-x: auto;
       background-color: var(--gray-100);
       font-family: inherit;
+      -webkit-overflow-scrolling: touch;
     }
 
     .gantt-header {
-      display: flex;
-      position: sticky;
-      top: 0;
+      position: relative;
+      height: 30px;
+      margin-bottom: 10px;
       background: var(--gray-100);
       border-bottom: 1px solid var(--gray-300);
-      padding: 0.5rem 0;
       z-index: 10;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       user-select: none;
+      min-width: fit-content;
     }
 
     .gantt-date-label {
-      flex: 0 0 40px;
+      position: absolute;
       text-align: center;
-      border-left: 1px solid var(--gray-300);
-      padding: 0 4px;
       color: var(--gray-600);
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .gantt-chart-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 400px;
+      min-width: fit-content;
     }
 
     .gantt-bar-container {
       position: relative;
-      min-height: 60px; /* to accommodate multiline text */
-      margin-bottom: 12px;
+      height: 40px;
+      margin-bottom: 10px;
       border-radius: 6px;
       background: white;
       box-shadow: var(--shadow-md);
       display: flex;
       align-items: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       user-select: none;
-      padding-left: 8px; /* left padding for visual breathing room */
+      padding-left: 8px;
+      min-width: fit-content;
     }
 
     .gantt-bar {
@@ -228,13 +241,12 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 12px 16px;
+      padding: 8px 12px;
       font-weight: 600;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      overflow: visible; /* allow wrapping */
-      white-space: normal; /* allow wrapping */
-      text-overflow: clip;
-      min-width: 80px; /* allow wider bars for text */
+      overflow: visible;
+      white-space: normal;
+      min-width: 80px;
     }
 
     .gantt-bar .task-title {
@@ -244,13 +256,13 @@
         1px -1px 1px rgba(0,0,0,0.7),
         -1px 1px 1px rgba(0,0,0,0.7),
         1px 1px 1px rgba(0,0,0,0.7);
-      font-size: 1.1rem;
+      font-size: 1rem;
       margin-bottom: 4px;
       line-height: 1.2;
     }
 
     .gantt-bar .dates {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: rgba(255 255 255 / 0.9);
       font-weight: 400;
       line-height: 1.2;
@@ -258,7 +270,7 @@
       user-select: none;
     }
 
-    /* Colors for phases (text color adjustments) */
+    /* Colors for phases */
     .grn { background-color: #4e79a7; }
     .manual-lt { background-color: #f28e2b; }
     .delivery { background-color: #59a14f; }
@@ -276,9 +288,9 @@
     .tgat { background-color: #b07aa1; }
     .erfp { background-color: #8c564b; }
 
-    /* Scrollbar for horizontal scroll - subtle */
+    /* Scrollbar for horizontal scroll */
     .gantt-container::-webkit-scrollbar {
-      height: 10px;
+      height: 8px;
     }
     .gantt-container::-webkit-scrollbar-thumb {
       background: var(--gray-400);
@@ -295,35 +307,57 @@
         padding: 1rem;
       }
 
-      h1 {
-        font-size: 2rem;
-      }
-
       .input-form {
         grid-template-columns: 1fr;
+        gap: 1rem;
       }
 
-      .gantt-bar-container {
-        min-height: 50px;
+      .form-actions {
+        flex-direction: column;
+        align-items: center;
       }
+
+      button {
+        width: 100%;
+      }
+
+      .gantt-date-label {
+        font-size: 0.75rem;
+      }
+
       .gantt-bar {
-        font-size: 0.85rem;
-        padding: 8px 12px;
+        font-size: 0.8rem;
+        padding: 6px 10px;
       }
+      
       .gantt-bar .task-title {
-        font-size: 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem;
+      }
+      
+      .container {
+        padding: 0.75rem;
+      }
+      
+      .gantt-bar-container {
+        height: 35px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container" role="main">
-    <h1>Qual Time CAR Date Calculator</h1>
-    <p class="subtitle">Calculate the CAR Initiated date and visualize the qualification timeline</p>
+    <h1>TIMELINE GENERATOR</h1>
+    <p class="subtitle">Calculate project timelines and visualize the schedule with an interactive Gantt chart</p>
 
-    <form class="input-form" aria-label="Input form to calculate qualification timeline">
+    <form class="input-form" aria-label="Input form to calculate project timeline">
       <div class="input-group">
-        <label for="qualStartDate">Qual Start Date</label>
+        <label for="qualStartDate">Project Start Date</label>
         <input type="date" id="qualStartDate" required aria-required="true" />
       </div>
       <div class="input-group">
@@ -341,29 +375,25 @@
     </form>
 
     <div class="results" aria-live="polite" aria-atomic="true">
-      <div id="carDateOutput" class="car-date" aria-label="CAR Initiated Date">CAR Initiated Date: -</div>
+      <div id="carDateOutput" class="car-date" aria-label="Project Start Date">Project Start Date: -</div>
 
       <div id="timelineSummary" class="timeline-summary" aria-label="Timeline summary">
         <!-- Timeline summary will be inserted here -->
       </div>
 
-      <div
-        class="gantt-container"
-        aria-label="Qualification timeline Gantt chart"
-        role="region"
-        tabindex="0"
-      >
-        <div id="ganttHeader" class="gantt-header" aria-hidden="true"></div>
-        <div id="ganttChart"></div>
+      <div class="gantt-container" aria-label="Project timeline Gantt chart" role="region" tabindex="0">
+        <div id="ganttHeader" class="gantt-header"></div>
+        <div id="ganttChart" class="gantt-chart-content"></div>
       </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Set default Qual Start Date to today
+      // Set default Project Start Date to today
       const today = new Date();
-      document.getElementById('qualStartDate').valueAsDate = today;
+      const todayFormatted = today.toISOString().split('T')[0];
+      document.getElementById('qualStartDate').value = todayFormatted;
 
       document.getElementById('calculateBtn').addEventListener('click', calculateTimeline);
       document.getElementById('printBtn').addEventListener('click', () => {
@@ -391,7 +421,7 @@
       const manualLT = parseInt(document.getElementById('manualLT').value) || 0;
 
       if (!qualStartDateInput) {
-        alert('Please enter a valid Qual Start Date');
+        alert('Please enter a valid Project Start Date');
         return;
       }
 
@@ -417,21 +447,25 @@
         const endDate = new Date(currentDate);
         const startDate = new Date(currentDate);
         startDate.setDate(startDate.getDate() - phase.weeks * 7);
-        phasesWithDates.push({ ...phase, startDate, endDate });
+        
+        phasesWithDates.unshift({ ...phase, startDate, endDate });
         currentDate = startDate;
       }
 
-      // Set CAR Initiated Date to the end date of the CAR Prep phase
-      const carPrepPhase = phasesWithDates.find(phase => phase.key === 'car-prep');
-      const carInitiatedDate = carPrepPhase ? carPrepPhase.endDate : currentDate;
+      // Reverse to show GRN first at the top
+      phasesWithDates.reverse();
 
-      document.getElementById('carDateOutput').textContent = `CAR Initiated Date: ${formatDate(carInitiatedDate)}`;
+      // Set Project Start Date to the end date of the CAR Prep phase
+      const carPrepPhase = phasesWithDates.find(phase => phase.key === 'car-prep');
+      const projectStartDate = carPrepPhase ? carPrepPhase.endDate : currentDate;
+
+      document.getElementById('carDateOutput').textContent = `Project Start Date: ${formatDate(projectStartDate)}`;
 
       // Timeline summary
       const summaryHTML = `
         <h2>Timeline Summary</h2>
-        <p><strong>Qual Start Date:</strong> ${formatDate(qualStartDate)}</p>
-        <p><strong>CAR Initiated Date:</strong> ${formatDate(carInitiatedDate)}</p>
+        <p><strong>Project Completion Date:</strong> ${formatDate(qualStartDate)}</p>
+        <p><strong>Project Start Date:</strong> ${formatDate(projectStartDate)}</p>
         <h3>Phase Details:</h3>
         <ul>
         ${phasesWithDates
@@ -455,35 +489,55 @@
       ganttChart.innerHTML = '';
       ganttHeader.innerHTML = '';
 
+      // Find the earliest start date and latest end date
       const allStartDates = phases.map((p) => p.startDate.getTime());
       const allEndDates = phases.map((p) => p.endDate.getTime());
-
+      
       const timelineStart = new Date(Math.min(...allStartDates));
       const timelineEnd = new Date(Math.max(...allEndDates));
+      
+      // Calculate total duration in days
       const totalDuration = timelineEnd.getTime() - timelineStart.getTime();
+      const totalDays = Math.ceil(totalDuration / (1000 * 3600 * 24)) + 1;
 
-      const totalDays = Math.ceil(totalDuration / (1000 * 3600 * 24));
-      let showEvery = 1;
-      if (totalDays > 45) showEvery = Math.ceil(totalDays / 40);
-
-      const dateLabels = [];
-      for (let i = 0; i <= totalDays; i++) {
-        if (i % showEvery === 0) {
-          let date = new Date(timelineStart);
-          date.setDate(date.getDate() + i);
-          dateLabels.push(date);
-        }
+      // Generate date markers for each phase start and end
+      const dateMarkers = [];
+      phases.forEach(phase => {
+        dateMarkers.push(phase.startDate);
+        dateMarkers.push(phase.endDate);
+      });
+      
+      // Add timeline start and end if not already included
+      if (!dateMarkers.some(d => d.getTime() === timelineStart.getTime())) {
+        dateMarkers.unshift(timelineStart);
       }
+      if (!dateMarkers.some(d => d.getTime() === timelineEnd.getTime())) {
+        dateMarkers.push(timelineEnd);
+      }
+      
+      // Sort and remove duplicates
+      const uniqueDateMarkers = [...new Set(dateMarkers.map(d => d.getTime()))]
+        .map(t => new Date(t))
+        .sort((a, b) => a - b);
 
-      // Render date labels in header
-      dateLabels.forEach((date) => {
+      // Render date labels in header with accurate positioning
+      uniqueDateMarkers.forEach((date) => {
         const label = document.createElement('div');
         label.className = 'gantt-date-label';
         label.textContent = formatShortDate(date);
+        
+        // Calculate position percentage
+        const datePosition = (date.getTime() - timelineStart.getTime()) / totalDuration * 100;
+        label.style.left = `${datePosition}%`;
+        label.style.position = 'absolute';
+        
         ganttHeader.appendChild(label);
       });
 
-      // Render phase bars
+      // Set header width to match timeline
+      ganttHeader.style.width = `${totalDays * 20}px`; // Adjust multiplier for desired length
+
+      // Render phase bars in order (GRN at top, ERFP at bottom)
       phases.forEach((phase) => {
         const barContainer = document.createElement('div');
         barContainer.className = 'gantt-bar-container';
@@ -493,10 +547,10 @@
         );
 
         const phaseStartOffset = phase.startDate.getTime() - timelineStart.getTime();
-        const phaseDuration = phase.endDate.getTime() - phase.startDate.getTime();
-
+        const phaseEndOffset = phase.endDate.getTime() - timelineStart.getTime();
+        
         const leftPercent = (phaseStartOffset / totalDuration) * 100;
-        const widthPercent = (phaseDuration / totalDuration) * 100;
+        const widthPercent = (phaseEndOffset / totalDuration) * 100 - leftPercent;
 
         const bar = document.createElement('div');
         bar.className = `gantt-bar ${phase.key}`;
@@ -522,8 +576,10 @@
         barContainer.appendChild(bar);
         ganttChart.appendChild(barContainer);
       });
+
+      // Set chart width to match header
+      ganttChart.style.width = ganttHeader.style.width;
     }
   </script>
 </body>
 </html>
-
