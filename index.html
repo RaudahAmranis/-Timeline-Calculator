@@ -357,7 +357,7 @@
 
     <form class="input-form" aria-label="Input form to calculate project timeline">
       <div class="input-group">
-        <label for="qualStartDate">Project Start Date</label>
+        <label for="qualStartDate">Qual Start Date</label>
         <input type="date" id="qualStartDate" required aria-required="true" />
       </div>
       <div class="input-group">
@@ -375,7 +375,7 @@
     </form>
 
     <div class="results" aria-live="polite" aria-atomic="true">
-      <div id="carDateOutput" class="car-date" aria-label="Project Start Date">Project Start Date: -</div>
+      <div id="carDateOutput" class="car-date" aria-label="Qual Start Date">Qual Start Date: -</div>
 
       <div id="timelineSummary" class="timeline-summary" aria-label="Timeline summary">
         <!-- Timeline summary will be inserted here -->
@@ -465,7 +465,7 @@
       const summaryHTML = `
         <h2>Timeline Summary</h2>
         <p><strong>Project Completion Date:</strong> ${formatDate(qualStartDate)}</p>
-        <p><strong>Project Start Date:</strong> ${formatDate(projectStartDate)}</p>
+        <p><strong>Qual Start Date:</strong> ${formatDate(projectStartDate)}</p>
         <h3>Phase Details:</h3>
         <ul>
         ${phasesWithDates
