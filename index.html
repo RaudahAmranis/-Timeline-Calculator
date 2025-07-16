@@ -226,6 +226,14 @@
       padding-top: 5px;
     }
 
+    .gantt-date-marker {
+      position: absolute;
+      bottom: 0;
+      width: 1px;
+      height: 10px;
+      background-color: var(--gray-400);
+    }
+
     .gantt-chart-content {
       display: flex;
       flex-direction: column;
@@ -582,40 +590,80 @@
       const totalDuration = timelineEnd.getTime() - timelineStart.getTime();
       const totalDays = Math.ceil(totalDuration / (1000 * 60 * 60 * 24)) + 1;
 
-      // Generate date markers for each phase start and end
-      const dateMarkers = [];
+      // Create an array of important dates (phase starts and ends)
+      const importantDates = [];
       phases.forEach(phase => {
-        dateMarkers.push(phase.startDate);
-        dateMarkers.push(phase.endDate);
+        importantDates.push({
+          date: phase.startDate,
+          type: 'start',
+          phase: phase.name
+        });
+        importantDates.push({
+          date: phase.endDate,
+          type: 'end',
+          phase: phase.name
+        });
       });
-      
+
+      // Sort dates chronologically
+      importantDates.sort((a, b) => a.date - b.date);
+
+      // Filter dates to avoid too much crowding
+      const filteredDates = [];
+      let lastDate = null;
+      const minDayGap = 7; // Minimum days between labels to avoid crowding
+
+      importantDates.forEach((dateObj, index) => {
+        if (!lastDate || 
+            Math.abs((dateObj.date - lastDate.date) / (1000 * 60 * 60 * 24)) >= minDayGap ||
+            index === 0 || 
+            index === importantDates.length - 1) {
+          filteredDates.push(dateObj);
+          lastDate = dateObj;
+        }
+      });
+
       // Add timeline start and end if not already included
-      if (!dateMarkers.some(d => d.getTime() === timelineStart.getTime())) {
-        dateMarkers.unshift(timelineStart);
+      if (!filteredDates.some(d => d.date.getTime() === timelineStart.getTime())) {
+        filteredDates.unshift({
+          date: timelineStart,
+          type: 'timeline-start',
+          phase: ''
+        });
       }
-      if (!dateMarkers.some(d => d.getTime() === timelineEnd.getTime())) {
-        dateMarkers.push(timelineEnd);
+      if (!filteredDates.some(d => d.date.getTime() === timelineEnd.getTime())) {
+        filteredDates.push({
+          date: timelineEnd,
+          type: 'timeline-end',
+          phase: ''
+        });
       }
-      
-      // Sort and remove duplicates
-      const uniqueDateMarkers = [...new Set(dateMarkers.map(d => d.getTime()))]
-        .map(t => new Date(t))
-        .sort((a, b) => a - b);
+
+      // Sort again after adding start/end
+      filteredDates.sort((a, b) => a.date - b.date);
 
       // Render date labels in header
       const headerWidth = ganttHeader.offsetWidth;
       const dayWidth = headerWidth / totalDays;
       
-      uniqueDateMarkers.forEach(date => {
-        const daysFromStart = Math.ceil((date - timelineStart) / (1000 * 60 * 60 * 24));
+      filteredDates.forEach(dateObj => {
+        const daysFromStart = Math.ceil((dateObj.date - timelineStart) / (1000 * 60 * 60 * 24));
         const position = daysFromStart * dayWidth;
         
         if (position >= 0 && position <= headerWidth) {
+          // Create date label
           const dateLabel = document.createElement('div');
           dateLabel.className = 'gantt-date-label';
           dateLabel.style.left = `${position}px`;
-          dateLabel.textContent = formatShortDate(date);
+          dateLabel.textContent = formatShortDate(dateObj.date);
+          
+          // Create marker line
+          const markerLine = document.createElement('div');
+          markerLine.className = 'gantt-date-marker';
+          markerLine.style.left = `${position}px`;
+          
           ganttHeader.appendChild(dateLabel);
+          ganttHeader.appendChild(markerLine);
         }
       });
 
