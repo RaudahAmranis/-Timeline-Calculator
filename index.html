@@ -195,7 +195,7 @@
       border: 1px solid var(--gray-300);
       border-radius: var(--border-radius);
       padding: 1.5rem;
-      overflow-x: auto;
+      overflow-x: hidden; /* Disable horizontal scroll */
       background-color: var(--gray-100);
       font-family: inherit;
       -webkit-overflow-scrolling: touch;
@@ -212,7 +212,7 @@
       font-weight: 600;
       font-size: 1rem;
       user-select: none;
-      min-width: fit-content;
+      min-width: 100%;
     }
 
     .gantt-date-label {
@@ -224,6 +224,8 @@
       font-size: 1rem;
       font-weight: 600;
       padding-top: 5px;
+      min-width: 50px;
+      pointer-events: none;
     }
 
     .gantt-date-marker {
@@ -234,11 +236,21 @@
       background-color: var(--gray-400);
     }
 
+    .rtp-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-left: 3px dashed red;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
     .gantt-chart-content {
       display: flex;
       flex-direction: column;
       min-height: 600px;
-      min-width: fit-content;
+      width: 100%; /* Fit container width */
     }
 
     .gantt-bar-container {
@@ -253,7 +265,7 @@
       font-size: 1rem;
       user-select: none;
       padding-left: 10px;
-      min-width: fit-content;
+      width: 100%; /* Fit container width */
     }
 
     .gantt-bar {
@@ -311,132 +323,9 @@
     .tgat { background-color: #b07aa1; }
     .erfp { background-color: #8c564b; }
 
-    /* Scrollbar for horizontal scroll */
+    /* Scrollbar for horizontal scroll - disabled */
     .gantt-container::-webkit-scrollbar {
-      height: 12px;
-    }
-    .gantt-container::-webkit-scrollbar-thumb {
-      background: var(--gray-400);
-      border-radius: 8px;
-    }
-    .gantt-container::-webkit-scrollbar-track {
-      background: var(--gray-100);
-      border-radius: 8px;
-    }
-
-    /* Print-specific styles */
-    @media print {
-      body {
-        padding: 0;
-        background: white;
-      }
-      
-      .container {
-        max-width: 100%;
-        box-shadow: none;
-        padding: 0.5in;
-      }
-      
-      .input-form,
-      .form-actions,
-      button {
-        display: none;
-      }
-      
-      .gantt-container {
-        overflow: visible;
-        height: auto;
-        page-break-inside: avoid;
-      }
-      
-      .gantt-chart-content {
-        min-height: auto;
-      }
-      
-      .gantt-bar-container {
-        height: 0.5in;
-        margin-bottom: 0.2in;
-      }
-      
-      .timeline-summary {
-        page-break-after: avoid;
-        page-break-inside: avoid;
-      }
-      
-      .car-date {
-        page-break-after: avoid;
-      }
-      
-      @page {
-        size: landscape;
-        margin: 0.5in;
-      }
-    }
-
-    /* Responsive tweaks */
-    @media (max-width: 1024px) {
-      .container {
-        padding: 1.5rem;
-      }
-      
-      .gantt-bar-container {
-        height: 50px;
-      }
-      
-      .gantt-bar .task-title {
-        font-size: 1.1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 1rem;
-      }
-
-      .input-form {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-      }
-
-      .form-actions {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      button {
-        width: 100%;
-      }
-
-      .gantt-date-label {
-        font-size: 0.9rem;
-      }
-
-      .gantt-bar {
-        font-size: 0.9rem;
-        padding: 10px 12px;
-      }
-      
-      .gantt-bar .task-title {
-        font-size: 1rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 0.5rem;
-      }
-      
-      .container {
-        padding: 0.75rem;
-      }
-      
-      .gantt-bar-container {
-        height: 45px;
-      }
-      
-      .timeline-summary {
-        padding: 1rem;
-      }
+      display: none;
     }
   </style>
 </head>
@@ -480,7 +369,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Set default Qual Start Date to today
       const today = new Date();
       const todayFormatted = today.toISOString().split('T')[0];
       document.getElementById('qualStartDate').value = todayFormatted;
@@ -509,6 +397,8 @@
     function calculateTimeline() {
       const qualStartDateInput = document.getElementById('qualStartDate').value;
       const manualLT = parseInt(document.getElementById('manualLT').value) || 0;
+      const rtpDateInput = document.getElementById('rtpDate').value;
+      const rtpDate = rtpDateInput ? new Date(rtpDateInput) : null;
 
       if (!qualStartDateInput) {
         alert('Please enter a valid Qual Start Date');
@@ -529,7 +419,6 @@
         { name: 'ERFP', key: 'erfp', weeks: 2, description: 'ERFP process' },
       ];
 
-      // Work backward from qualStartDate, calculating phase dates
       let currentDate = new Date(qualStartDate);
       const phasesWithDates = [];
 
@@ -537,21 +426,18 @@
         const endDate = new Date(currentDate);
         const startDate = new Date(currentDate);
         startDate.setDate(startDate.getDate() - phase.weeks * 7);
-        
+
         phasesWithDates.unshift({ ...phase, startDate, endDate });
         currentDate = startDate;
       }
 
-      // Reverse to show GRN first at the top
       phasesWithDates.reverse();
 
-      // Set CAR Initiated Date to the start date of the CAR Prep phase
       const carPrepPhase = phasesWithDates.find(phase => phase.key === 'car-prep');
       const carInitiatedDate = carPrepPhase ? carPrepPhase.startDate : currentDate;
 
       document.getElementById('carDateOutput').textContent = `CAR Initiated Date: ${formatDate(carInitiatedDate)}`;
 
-      // Timeline summary
       const summaryHTML = `
         <h2>Timeline Summary</h2>
         <p><strong>Qual Start Date:</strong> ${formatDate(qualStartDate)}</p>
@@ -569,125 +455,109 @@
 
       document.getElementById('timelineSummary').innerHTML = summaryHTML;
 
-      generateGanttChart(phasesWithDates);
+      generateGanttChart(phasesWithDates, rtpDate);
     }
 
-    function generateGanttChart(phases) {
+    function generateGanttChart(phases, rtpDate) {
       const ganttChart = document.getElementById('ganttChart');
       const ganttHeader = document.getElementById('ganttHeader');
+      const ganttContainer = document.querySelector('.gantt-container');
 
       ganttChart.innerHTML = '';
       ganttHeader.innerHTML = '';
 
-      // Find the earliest start date and latest end date
-      const allStartDates = phases.map((p) => p.startDate.getTime());
-      const allEndDates = phases.map((p) => p.endDate.getTime());
-      
-      const timelineStart = new Date(Math.min(...allStartDates));
-      const timelineEnd = new Date(Math.max(...allEndDates));
-      
-      // Calculate total duration in days
-      const totalDuration = timelineEnd.getTime() - timelineStart.getTime();
-      const totalDays = Math.ceil(totalDuration / (1000 * 60 * 60 * 24)) + 1;
+      const allStartDates = phases.map(p => p.startDate.getTime());
+      const allEndDates = phases.map(p => p.endDate.getTime());
 
-      // Create an array of important dates (phase starts and ends)
-      const importantDates = [];
-      phases.forEach(phase => {
-        importantDates.push({
-          date: phase.startDate,
-          type: 'start',
-          phase: phase.name
-        });
-        importantDates.push({
-          date: phase.endDate,
-          type: 'end',
-          phase: phase.name
-        });
-      });
+      // Adjust timelineStart to first day of earliest month
+      let timelineStart = new Date(Math.min(...allStartDates));
+      timelineStart = new Date(timelineStart.getFullYear(), timelineStart.getMonth(), 1);
 
-      // Sort dates chronologically
-      importantDates.sort((a, b) => a.date - b.date);
+      // Adjust timelineEnd to last day of latest month
+      let timelineEnd = new Date(Math.max(...allEndDates));
+      timelineEnd = new Date(timelineEnd.getFullYear(), timelineEnd.getMonth() + 1, 0);
 
-      // Filter dates to avoid too much crowding
-      const filteredDates = [];
-      let lastDate = null;
-      const minDayGap = 7; // Minimum days between labels to avoid crowding
+      const totalDays = Math.ceil((timelineEnd - timelineStart) / (1000 * 60 * 60 * 24)) + 1;
 
-      importantDates.forEach((dateObj, index) => {
-        if (!lastDate || 
-            Math.abs((dateObj.date - lastDate.date) / (1000 * 60 * 60 * 24)) >= minDayGap ||
-            index === 0 || 
-            index === importantDates.length - 1) {
-          filteredDates.push(dateObj);
-          lastDate = dateObj;
-        }
-      });
+      // Use container width to fit all phases without scroll
+      const containerWidth = ganttContainer.clientWidth;
 
-      // Add timeline start and end if not already included
-      if (!filteredDates.some(d => d.date.getTime() === timelineStart.getTime())) {
-        filteredDates.unshift({
-          date: timelineStart,
-          type: 'timeline-start',
-          phase: ''
-        });
-      }
-      if (!filteredDates.some(d => d.date.getTime() === timelineEnd.getTime())) {
-        filteredDates.push({
-          date: timelineEnd,
-          type: 'timeline-end',
-          phase: ''
-        });
-      }
+      ganttHeader.style.width = `${containerWidth}px`;
+      ganttChart.style.width = `${containerWidth}px`;
 
-      // Sort again after adding start/end
-      filteredDates.sort((a, b) => a.date - b.date);
+      const dayWidth = containerWidth / totalDays;
 
-      // Render date labels in header
-      const headerWidth = ganttHeader.offsetWidth;
-      const dayWidth = headerWidth / totalDays;
-      
-      filteredDates.forEach(dateObj => {
-        const daysFromStart = Math.ceil((dateObj.date - timelineStart) / (1000 * 60 * 60 * 24));
-        const position = daysFromStart * dayWidth;
-        
-        if (position >= 0 && position <= headerWidth) {
-          // Create date label
+      // Generate month labels at the first day of each month in timeline
+      let current = new Date(timelineStart.getFullYear(), timelineStart.getMonth(), 1);
+      while (current <= timelineEnd) {
+        const daysFromStart = Math.floor((current - timelineStart) / (1000 *  60 * 60 * 24));
+        if (daysFromStart >= 0 && daysFromStart <= totalDays) {
+          const positionPixels = daysFromStart * dayWidth;
+
+          // Month label
           const dateLabel = document.createElement('div');
           dateLabel.className = 'gantt-date-label';
-          dateLabel.style.left = `${position}px`;
-          dateLabel.textContent = formatShortDate(dateObj.date);
-          
-          // Create marker line
-          const markerLine = document.createElement('div');
-          markerLine.className = 'gantt-date-marker';
-          markerLine.style.left = `${position}px`;
-          
+          dateLabel.textContent = current.toLocaleString('en-US', { month: 'short' });
+          dateLabel.style.left = `${positionPixels}px`;
           ganttHeader.appendChild(dateLabel);
-          ganttHeader.appendChild(markerLine);
+
+          // Marker line
+          const dateMarker = document.createElement('div');
+          dateMarker.className = 'gantt-date-marker';
+          dateMarker.style.left = `${positionPixels}px`;
+          ganttHeader.appendChild(dateMarker);
         }
-      });
+        current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+      }
 
       // Render bars for each phase
       phases.forEach(phase => {
-        const daysFromStart = Math.ceil((phase.startDate - timelineStart) / (1000 * 60 * 60 * 24));
-        const phaseDuration = Math.ceil((phase.endDate - phase.startDate) / (1000 * 60 * 60 * 24)) + 1;
-        
+        const daysFromStart = Math.floor((phase.startDate - timelineStart) / (1000 * 60 * 60 * 24));
+        let phaseDuration = Math.ceil((phase.endDate - phase.startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+        // Ensure minimum width for zero-week phases (like GRN)
+        if (phaseDuration <= 0) {
+          phaseDuration = 1;
+        }
+
         const barContainer = document.createElement('div');
         barContainer.className = 'gantt-bar-container';
-        
+        barContainer.style.width = `${containerWidth}px`;
+
         const bar = document.createElement('div');
         bar.className = `gantt-bar ${phase.key}`;
         bar.style.left = `${daysFromStart * dayWidth}px`;
         bar.style.width = `${phaseDuration * dayWidth}px`;
-        
+
         bar.innerHTML = `
           <div class="task-title">${phase.name}</div>
           <div class="dates">${formatShortDate(phase.startDate)} - ${formatShortDate(phase.endDate)}</div>
         `;
-        
+
         barContainer.appendChild(bar);
         ganttChart.appendChild(barContainer);
       });
+
+      // Add RTP red dashed line if RTP date is valid and within timeline
+      if (rtpDate && rtpDate >= timelineStart && rtpDate <= timelineEnd) {
+        const existingRtpLine = document.querySelector('.rtp-line');
+        if (existingRtpLine) existingRtpLine.remove();
+
+        const rtpLine = document.createElement('div');
+        rtpLine.className = 'rtp-line';
+
+        const daysFromStart = Math.floor((rtpDate - timelineStart) / (1000 * 60 * 60 * 24));
+        const leftPosition = daysFromStart * dayWidth;
+        rtpLine.style.left = `${leftPosition}px`;
+
+        rtpLine.title = `RTP Date: ${formatDate(rtpDate)}`;
+
+        ganttContainer.style.position = 'relative';
+        ganttContainer.appendChild(rtpLine);
+      } else {
+        const existingRtpLine = document.querySelector('.rtp-line');
+        if (existingRtpLine) existingRtpLine.remove();
+      }
     }
   </script>
 </body>
